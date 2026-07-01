@@ -42,13 +42,17 @@ class TaskResponse(TaskCreate):
     updated_at: datetime.date
 
 
-class TaskCreated(BaseModel):
-    title: str = Field(min_length=3, max_length=30)
-    status: TaskStatus
-    priority: TaskPriority
-    deadline: datetime.date | None = None
-
-
 class TaskCreatedResponse(BaseModel):
     message: str = 'Task created successfully'
-    task: TaskCreated
+    task: TaskResponse
+
+
+class TaskUpdate(BaseModel):
+    title: str | None = Field(min_length=3, max_length=30, default=None)
+    description: str | None = Field(min_length=3, max_length=50, default=None)
+    status: TaskStatus | None = None
+    priority: TaskPriority | None = None
+    category: Category | None = None
+    tags: set[str] | None = None
+    subtasks: list[SubTask] | None = None
+    deadline: datetime.date | None = None
