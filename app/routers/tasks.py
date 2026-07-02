@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from fastapi import APIRouter, Query, Path, Body, status, HTTPException
+from fastapi import APIRouter, Query, Path, Body, status, HTTPException, Depends
 from fastapi.encoders import jsonable_encoder
 from typing import Annotated
 
@@ -12,7 +12,11 @@ from storage.memory import tasks
 router = APIRouter(prefix='/tasks', tags=['Tasks'])
 
 
-@router.get('/tasks/{task_id}', response_model=TaskResponse, status_code=status.HTTP_200_OK, summary='Get task by id')
+def pagination(limit: int = Query(10), offset: int = Query(0)):
+    return {'limit': limit, 'offset': offset}
+
+
+@router.get('/{task_id}', response_model=TaskResponse, status_code=status.HTTP_200_OK, summary='Get task by id')
 async def get_task_by_id(task_id: Annotated[int, Path(gt=0)]):
     for task in tasks:
         if task['id'] == task_id:
@@ -20,11 +24,16 @@ async def get_task_by_id(task_id: Annotated[int, Path(gt=0)]):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
 
-@router.get('/tasks', response_model=list[TaskResponse], status_code=status.HTTP_200_OK, summary='Get tasks')
+@router.get('/', 
+            response_model=list[TaskResponse], 
+            status_code=status.HTTP_200_OK, 
+            summary='Get tasks'
+            )
 async def get_tasks(
     status: Annotated[TaskStatus | None, Query()] = None, 
     search: Annotated[str | None, Query()] = None,
-    priority: Annotated[TaskPriority | None, Query()] = None
+    priority: Annotated[TaskPriority | None, Query()] = None,
+    page: Annotated[pagination, Depends()] = None
     ):
     tsk = tasks
     if status:
@@ -36,7 +45,7 @@ async def get_tasks(
     return tsk
 
 
-@router.post('/tasks', response_model=TaskCreatedResponse, status_code=status.HTTP_201_CREATED, summary='Create new task')
+@router.post('/', response_model=TaskCreatedResponse, status_code=status.HTTP_201_CREATED, summary='Create new task')
 async def create_task(task: Annotated[TaskCreate, Body()]):
     task_dict = task.model_dump(exclude_unset=True)
     task_dict.update({
@@ -53,7 +62,7 @@ async def create_task(task: Annotated[TaskCreate, Body()]):
 
 
 @router.patch(
-        '/tasks/{task_id}', 
+        '/{task_id}', 
         response_model=TaskResponse, 
         status_code=status.HTTP_200_OK,
         summary='Update task'
@@ -71,7 +80,7 @@ async def update_task(task_id: Annotated[int, Path(gt=0)], task: Annotated[TaskU
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
 
-@router.delete('/tasks/{task_id}', status_code=status.HTTP_200_OK, summary='Delete task')
+@router.delete('/{task_id}', status_code=status.HTTP_200_OK, summary='Delete task')
 async def delete_task(task_id: Annotated[int, Path(gt=0)]):
     for i in range(len(tasks)):
         if tasks[i]['id'] == task_id:
