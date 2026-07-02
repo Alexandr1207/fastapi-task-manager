@@ -7,6 +7,7 @@ from typing import Annotated
 
 from schemas.tasks import TaskResponse, TaskStatus, TaskCreate, TaskPriority, TaskCreatedResponse, TaskUpdate
 from storage.memory import tasks
+from services.task_service import find_task_by_id, find_task_index
 
 
 router = APIRouter(prefix='/tasks', tags=['Tasks'])
@@ -18,10 +19,10 @@ def pagination(limit: int = Query(10), offset: int = Query(0)):
 
 @router.get('/{task_id}', response_model=TaskResponse, status_code=status.HTTP_200_OK, summary='Get task by id')
 async def get_task_by_id(task_id: Annotated[int, Path(gt=0)]):
-    for task in tasks:
-        if task['id'] == task_id:
-            return task 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    task = find_task_by_id(task_id, tasks)
+    if task is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    return task
 
 
 @router.get('/', 
@@ -33,7 +34,7 @@ async def get_tasks(
     status: Annotated[TaskStatus | None, Query()] = None, 
     search: Annotated[str | None, Query()] = None,
     priority: Annotated[TaskPriority | None, Query()] = None,
-    page: Annotated[pagination, Depends()] = None
+    pagination: Annotated[pagination, Depends()] = None
     ):
     tsk = tasks
     if status:
@@ -42,7 +43,7 @@ async def get_tasks(
         tsk = list(filter(lambda x: search.lower() in x['title'].lower(), tsk))
     if priority:
         tsk = list(filter(lambda x: x['priority'] == priority, tsk))
-    return tsk
+    return tsk[pagination['offset']: pagination['offset'] + pagination['limit']]
 
 
 @router.post('/', response_model=TaskCreatedResponse, status_code=status.HTTP_201_CREATED, summary='Create new task')
@@ -70,20 +71,21 @@ async def create_task(task: Annotated[TaskCreate, Body()]):
 async def update_task(task_id: Annotated[int, Path(gt=0)], task: Annotated[TaskUpdate, Body()]):
     task_dict = task.model_dump(exclude_unset=True)
     task_dict.update({'updated_at': datetime.date.today()})
-    for i in range(len(tasks)):
-        if tasks[i]['id'] == task_id:
-            stored_item_data = tasks[i]
-            stored_item_model = TaskResponse(**stored_item_data)
-            updated_item = stored_item_model.model_copy(update=task_dict)
-            tasks[i] = jsonable_encoder(updated_item)
-            return tasks[i]
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    stored_item_data = find_task_by_id(task_id, tasks)
+    if stored_item_data is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    idx = find_task_index(stored_item_data, tasks)
+    stored_item_model = TaskResponse(**stored_item_data)
+    updated_item = stored_item_model.model_copy(update=task_dict)
+    tasks[idx] = jsonable_encoder(updated_item)
+    return tasks[idx]
 
 
 @router.delete('/{task_id}', status_code=status.HTTP_200_OK, summary='Delete task')
 async def delete_task(task_id: Annotated[int, Path(gt=0)]):
-    for i in range(len(tasks)):
-        if tasks[i]['id'] == task_id:
-            tasks.pop(i)
-            return {'message': 'Task deleted successfully'}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    task = find_task_by_id(task_id, tasks)
+    if task is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    idx = find_task_index(task, tasks)
+    tasks.pop(idx)
+    return {'message': 'Task deleted successfully'}
