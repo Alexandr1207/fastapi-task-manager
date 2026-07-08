@@ -7,6 +7,8 @@
 - Python
 - FastAPI
 - Pydantic
+- PostgreSQL
+- SQLALchemy
 
 ## Возможности
 
