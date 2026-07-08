@@ -29,14 +29,10 @@ class TaskCreate(BaseModel):
     description: str = Field(min_length=3, max_length=50)
     status: TaskStatus
     priority: TaskPriority
-    category: Category
-    tags: set[str] = Field(default_factory=set)
-    subtasks: list[SubTask] = Field(default_factory=list)
     deadline: datetime.date | None = None
 
 
 class TaskResponse(TaskCreate):
-    id: int = Field(gt=0)
     uuid: uuid.UUID
     created_at: datetime.date
     updated_at: datetime.date
@@ -52,7 +48,4 @@ class TaskUpdate(BaseModel):
     description: str | None = Field(min_length=3, max_length=50, default=None)
     status: TaskStatus | None = None
     priority: TaskPriority | None = None
-    category: Category | None = None
-    tags: set[str] | None = None
-    subtasks: list[SubTask] | None = None
     deadline: datetime.date | None = None
