@@ -20,8 +20,8 @@ class Task(Base):
     status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus))
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority))
     deadline: Mapped[Optional[datetime.date]] = mapped_column(Date)
-    created_at: Mapped[datetime.date] = mapped_column(Date)
-    updated_at: Mapped[datetime.date] = mapped_column(Date)
+    created_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today)
+    updated_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today, onupdate=datetime.date.today)
 
 
 print("MODELS LOADED FROM:", __file__)

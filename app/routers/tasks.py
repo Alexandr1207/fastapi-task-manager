@@ -46,10 +46,6 @@ async def get_tasks(
 @router.post('/', response_model=TaskCreatedResponse, status_code=status.HTTP_201_CREATED, summary='Create new task')
 async def create_task(task: Annotated[TaskCreate, Body()], db: Session = Depends(get_db)):
     task_dict = task.model_dump(exclude_unset=True)
-    task_dict.update({
-        'created_at': datetime.date.today(),
-        'updated_at': datetime.date.today()
-    })
     created_task = add_task(db, task_dict)
     message = 'Task created successfully'
     return {'message': message, 'task': created_task}
@@ -64,7 +60,6 @@ async def create_task(task: Annotated[TaskCreate, Body()], db: Session = Depends
         )
 async def update_task(task_id: Annotated[int, Path(gt=0)], task: Annotated[TaskUpdate, Body()], db: Session = Depends(get_db)):
     task_dict = task.model_dump(exclude_unset=True)
-    task_dict.update({'updated_at': datetime.date.today()})
     task = update_task_db(db=db, task_id=task_id, updated_item=task_dict)
     if task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
