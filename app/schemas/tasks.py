@@ -19,8 +19,7 @@ class SubTask(BaseModel):
     done: bool = False
 
 
-class Category(BaseModel):
-    id: int = Field(gt=0)
+class Category_schema(BaseModel):
     name: str = Field(min_length=3, max_length=20)
 
 

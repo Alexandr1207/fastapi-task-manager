@@ -1,5 +1,5 @@
 from sqlalchemy import String, Uuid, Enum, Date, Integer, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional
 import uuid 
 import datetime
@@ -24,6 +24,7 @@ class Task(Base):
     updated_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today, onupdate=datetime.date.today)
 
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"))
+    category: Mapped["Category"] = relationship("Category", back_populates="tasks")
 
 
 class Category(Base):
@@ -31,5 +32,7 @@ class Category(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
+
+    tasks: Mapped[list["Task"]] = relationship("Task", back_populates="category")
 
 
