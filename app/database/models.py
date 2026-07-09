@@ -1,4 +1,4 @@
-from sqlalchemy import String, Uuid, Enum, Date, Integer
+from sqlalchemy import String, Uuid, Enum, Date, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 import uuid 
@@ -10,7 +10,7 @@ from schemas.tasks import TaskStatus, TaskPriority
 class Task(Base):
     __tablename__ = "tasks"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     uuid: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
         default=uuid.uuid4
@@ -23,5 +23,13 @@ class Task(Base):
     created_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today)
     updated_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today, onupdate=datetime.date.today)
 
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"))
 
-print("MODELS LOADED FROM:", __file__)
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(30))
+
+
