@@ -44,3 +44,8 @@ def delete_task_db(db: Session, task_id: int):
     stmt = delete(Task).where(Task.id == task_id)
     db.execute(stmt)
     db.commit()
+
+
+def category_has_tasks(db: Session, cat_id: int):
+    stmt = select(Task).where(Task.category_id == cat_id)
+    return db.scalars(stmt).first() is not None

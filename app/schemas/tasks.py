@@ -14,13 +14,12 @@ class TaskPriority(str, Enum):
     high = 'high'
 
 
-class SubTask(BaseModel):
-    title: str = Field(min_length=3, max_length=30)
-    done: bool = False
-
-
-class Category_schema(BaseModel):
+class CategoryCreate(BaseModel):
     name: str = Field(min_length=3, max_length=20)
+
+
+class CategoryResponse(CategoryCreate):
+    id: int
 
 
 class TaskCreate(BaseModel):
@@ -30,11 +29,15 @@ class TaskCreate(BaseModel):
     priority: TaskPriority
     deadline: datetime.date | None = None
 
+    category_id: int = Field(gt=0)
+
 
 class TaskResponse(TaskCreate):
     uuid: uuid.UUID
     created_at: datetime.date
     updated_at: datetime.date
+
+    category: CategoryCreate
 
 
 class TaskCreatedResponse(BaseModel):
@@ -48,3 +51,4 @@ class TaskUpdate(BaseModel):
     status: TaskStatus | None = None
     priority: TaskPriority | None = None
     deadline: datetime.date | None = None
+    category_id: int | None

@@ -2,11 +2,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, status
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from database.models import Task
 from database.database import get_db
-from services.category_service import get_categories_db, create_category_db, delete_category_db, get_category_by_id_db, update_category_db
-from schemas.tasks import Category_schema
+from services.task_service import category_has_tasks
+from services.category_service import get_categories_db, create_category_db, delete_category_db, get_category_by_id_db, update_category_db, get_category_by_name_db
+from schemas.tasks import CategoryCreate, CategoryResponse
+from services.task_service import update_task_db
 
 
 
@@ -15,7 +19,7 @@ router = APIRouter(prefix='/categories', tags=['Categories'])
 
 
 @router.get('/', 
-            response_model=list[Category_schema], 
+            response_model=list[CategoryResponse], 
             status_code=status.HTTP_200_OK,
             summary='Get categories'
             )
@@ -24,7 +28,7 @@ async def get_categories(db: Session = Depends(get_db)):
 
 
 @router.get('/{cat_id}',
-            response_model=Category_schema, 
+            response_model=CategoryResponse, 
             status_code=status.HTTP_200_OK,
             summary='Get category by id')
 async def get_category_by_id(cat_id: Annotated[int, Path(gt=0)], db: Session = Depends(get_db)):
@@ -35,17 +39,28 @@ async def get_category_by_id(cat_id: Annotated[int, Path(gt=0)], db: Session = D
 
 
 @router.post('/', 
-             response_model=Category_schema,
+             response_model=CategoryResponse,
              status_code=status.HTTP_201_CREATED,
              summary="Create category"
              )
-async def create_category(category: Annotated[Category_schema, Body()], db: Session = Depends(get_db)):
+async def create_category(category: Annotated[CategoryCreate, Body()], db: Session = Depends(get_db)):
     category = category.model_dump()
+    existing = get_category_by_name_db(db=db, cat_name=category['name'])
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="Category already exists"
+        )
     return create_category_db(db=db, category=category)
 
 
 @router.delete('/{cat_id}', status_code=status.HTTP_200_OK, summary="Delete category")
 async def delete_category(cat_id: Annotated[int, Path(gt=0)], db: Session = Depends(get_db)):
+    if category_has_tasks(db=db, cat_id=cat_id):
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete category because it is used by tasks"
+        )
     cat = get_category_by_id_db(db=db, cat_id=cat_id)
     if cat is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
@@ -55,11 +70,11 @@ async def delete_category(cat_id: Annotated[int, Path(gt=0)], db: Session = Depe
 
 @router.patch(
         '/{cat_id}', 
-        response_model=Category_schema, 
+        response_model=CategoryResponse, 
         status_code=status.HTTP_200_OK,
         summary='Update task'
         )
-async def update_category(cat_id: Annotated[int, Path(gt=0)], category: Annotated[Category_schema, Body()], db: Session = Depends(get_db)):
+async def update_category(cat_id: Annotated[int, Path(gt=0)], category: Annotated[CategoryCreate, Body()], db: Session = Depends(get_db)):
     cat_dict = category.model_dump(exclude_unset=True)
     category = update_category_db(db=db, cat_id=cat_id, cat_dict=cat_dict)
     if category is None:

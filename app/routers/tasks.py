@@ -7,6 +7,7 @@ from typing import Annotated
 
 from sqlalchemy.orm import Session
 
+from services.category_service import get_category_by_id_db
 from schemas.tasks import TaskResponse, TaskStatus, TaskCreate, TaskPriority, TaskCreatedResponse, TaskUpdate
 from services.task_service import add_task, read_tasks, read_task_by_id, update_task_db, delete_task_db
 from database.database import get_db
@@ -46,6 +47,9 @@ async def get_tasks(
 @router.post('/', response_model=TaskCreatedResponse, status_code=status.HTTP_201_CREATED, summary='Create new task')
 async def create_task(task: Annotated[TaskCreate, Body()], db: Session = Depends(get_db)):
     task_dict = task.model_dump(exclude_unset=True)
+    category = get_category_by_id_db(db=db, cat_id=task_dict['category_id'])
+    if category is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     created_task = add_task(db, task_dict)
     message = 'Task created successfully'
     return {'message': message, 'task': created_task}

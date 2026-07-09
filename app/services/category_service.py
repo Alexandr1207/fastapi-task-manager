@@ -2,7 +2,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from database.database import get_db
-from database.models import Category
+from database.models import Category, Task
 
 
 def get_categories_db(db: Session):
@@ -11,6 +11,11 @@ def get_categories_db(db: Session):
 
 def get_category_by_id_db(db: Session, cat_id: int):
     stmt = select(Category).where(Category.id == cat_id)
+    return db.scalars(stmt).first()
+
+
+def get_category_by_name_db(db: Session, cat_name: str):
+    stmt = select(Category).where(Category.name == cat_name)
     return db.scalars(stmt).first()
 
 
