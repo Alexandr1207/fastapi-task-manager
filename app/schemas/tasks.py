@@ -29,7 +29,7 @@ class TaskCreate(BaseModel):
     priority: TaskPriority
     deadline: datetime.date | None = None
 
-    category_id: int = Field(gt=0)
+    category_id: int | None = Field(gt=0)
 
 
 class TaskResponse(TaskCreate):
@@ -37,7 +37,7 @@ class TaskResponse(TaskCreate):
     created_at: datetime.date
     updated_at: datetime.date
 
-    category: CategoryCreate
+    category: CategoryCreate | None
 
 
 class TaskCreatedResponse(BaseModel):
@@ -51,4 +51,4 @@ class TaskUpdate(BaseModel):
     status: TaskStatus | None = None
     priority: TaskPriority | None = None
     deadline: datetime.date | None = None
-    category_id: int | None
+    category_id: int | None = None

@@ -9,8 +9,3 @@ app = FastAPI()
 
 app.include_router(task_router)
 app.include_router(category_router)
-
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)

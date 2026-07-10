@@ -2,7 +2,6 @@ import datetime
 import uuid
 
 from fastapi import APIRouter, Query, Path, Body, status, HTTPException, Depends
-from fastapi.encoders import jsonable_encoder
 from typing import Annotated
 
 from sqlalchemy.orm import Session
@@ -46,11 +45,10 @@ async def get_tasks(
 
 @router.post('/', response_model=TaskCreatedResponse, status_code=status.HTTP_201_CREATED, summary='Create new task')
 async def create_task(task: Annotated[TaskCreate, Body()], db: Session = Depends(get_db)):
-    task_dict = task.model_dump(exclude_unset=True)
-    category = get_category_by_id_db(db=db, cat_id=task_dict['category_id'])
+    category = get_category_by_id_db(db=db, cat_id=task.category_id)
     if category is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-    created_task = add_task(db, task_dict)
+    created_task = add_task(db, task)
     message = 'Task created successfully'
     return {'message': message, 'task': created_task}
     
@@ -63,8 +61,7 @@ async def create_task(task: Annotated[TaskCreate, Body()], db: Session = Depends
         summary='Update task'
         )
 async def update_task(task_id: Annotated[int, Path(gt=0)], task: Annotated[TaskUpdate, Body()], db: Session = Depends(get_db)):
-    task_dict = task.model_dump(exclude_unset=True)
-    task = update_task_db(db=db, task_id=task_id, updated_item=task_dict)
+    task = update_task_db(db=db, task_id=task_id, updated_item=task)
     if task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     return task

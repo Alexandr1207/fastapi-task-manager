@@ -1,4 +1,4 @@
-from sqlalchemy import String, Uuid, Enum, Date, Integer, ForeignKey
+from sqlalchemy import String, Uuid, Enum, Date, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional
 import uuid 
@@ -23,7 +23,7 @@ class Task(Base):
     created_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today)
     updated_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today, onupdate=datetime.date.today)
 
-    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"))
+    category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
     category: Mapped["Category"] = relationship("Category", back_populates="tasks")
 
 
