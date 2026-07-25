@@ -4,7 +4,7 @@ from typing import Optional
 import uuid 
 import datetime
 from database.database import Base
-from schemas.tasks import TaskStatus, TaskPriority
+from core.enums import TaskStatus, TaskPriority
 
 
 class Task(Base):

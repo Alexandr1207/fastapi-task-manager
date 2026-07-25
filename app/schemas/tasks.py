@@ -1,17 +1,7 @@
 import datetime
 import uuid
 from pydantic import BaseModel, Field
-from enum import Enum
-
-
-class TaskStatus(str, Enum):
-    open = 'open'
-    close = 'close'
-
-
-class TaskPriority(str, Enum):
-    low = 'low'
-    high = 'high'
+from core.enums import TaskPriority, TaskStatus
 
 
 class CategoryCreate(BaseModel):

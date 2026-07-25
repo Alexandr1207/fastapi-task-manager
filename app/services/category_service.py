@@ -31,6 +31,8 @@ def update_category_db(db: Session, cat_id: int, cat_dict: CategoryCreate) -> Ca
     stmt = update(Category).where(Category.id == cat_id).values(**cat_dict.model_dump(exclude_unset=True))
     db.execute(stmt)
     db.commit()
+    if new_cat:
+        db.refresh(new_cat)
     new_cat = get_category_by_id_db(db, cat_id)
     return new_cat
 

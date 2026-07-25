@@ -37,7 +37,8 @@ def update_task_db(db: Session, task_id: int, updated_item: TaskUpdate) -> Task 
     db.execute(stmt)
     db.commit()
     new_task = read_task_by_id(db, task_id=task_id)
-    db.refresh(new_task)
+    if new_task:
+        db.refresh(new_task)
     return new_task
 
 
