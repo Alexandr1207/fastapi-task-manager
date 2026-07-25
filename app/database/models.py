@@ -4,7 +4,7 @@ from typing import Optional
 import uuid 
 import datetime
 from database.database import Base
-from core.enums import TaskStatus, TaskPriority
+from core.enums import TaskStatus, TaskPriority, UserRole
 
 
 class Task(Base):
@@ -26,6 +26,9 @@ class Task(Base):
     category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
     category: Mapped["Category"] = relationship("Category", back_populates="tasks")
 
+    user_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    user: Mapped["User"] = relationship("User", back_populates="tasks")
+
 
 class Category(Base):
     __tablename__ = "categories"
@@ -34,5 +37,20 @@ class Category(Base):
     name: Mapped[str] = mapped_column(String(30), unique=True)
 
     tasks: Mapped[list["Task"]] = relationship("Task", back_populates="category")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(30), unique=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole))
+    created_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today)
+    updated_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today, onupdate=datetime.date.today)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    tasks: Mapped[list["Task"]] = relationship("Task", back_populates="user")
 
 

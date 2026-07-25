@@ -9,3 +9,8 @@ class TaskStatus(str, Enum):
 class TaskPriority(str, Enum):
     low = 'low'
     high = 'high'
+
+
+class UserRole(str, Enum):
+    admin = 'admin'
+    user = 'user'
