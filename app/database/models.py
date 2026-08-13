@@ -1,4 +1,4 @@
-from sqlalchemy import String, Uuid, Enum, Date, Integer, ForeignKey, Boolean
+from sqlalchemy import String, Uuid, Enum, Date, Integer, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional
 import uuid 
@@ -46,11 +46,11 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(30), unique=True)
     email: Mapped[str] = mapped_column(String(255), unique=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole))
-    created_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today)
-    updated_at: Mapped[datetime.date] = mapped_column(Date, default=datetime.date.today, onupdate=datetime.date.today)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.user)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now)
+    updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    tasks: Mapped[list["Task"]] = relationship("Task", back_populates="user")
+    tasks: Mapped[list["Task"]] = relationship("Task", back_populates="user", cascade="all, delete-orphan")
 
 
