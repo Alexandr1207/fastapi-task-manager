@@ -14,8 +14,3 @@ def verify_password(password: str, hashed_password: str) -> bool:
         password=password,
         hash=hashed_password
     )
-
-my_pass = "12345"
-hashed = hash_password(my_pass)
-print(hashed)
-print(verify_password(hashed, "my_pass"))

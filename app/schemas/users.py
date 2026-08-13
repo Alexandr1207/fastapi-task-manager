@@ -6,7 +6,7 @@ from core.enums import UserRole
 
 
 class UserResponse(BaseModel):
-    id: UUID
+    id: int
     email: EmailStr
     username: str
     role: UserRole
