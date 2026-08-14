@@ -5,9 +5,11 @@ import database.models
 from routers.tasks import router as task_router
 from routers.categories import router as category_router
 from routers.users import router as user_router
+from routers.auth import router as auth_router
 
 app = FastAPI()
 
 app.include_router(task_router)
 app.include_router(category_router)
 app.include_router(user_router)
+app.include_router(auth_router)
