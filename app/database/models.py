@@ -3,8 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional
 import uuid 
 import datetime
-from database.database import Base
-from core.enums import TaskStatus, TaskPriority, UserRole
+from app.database.database import Base
+from app.core.enums import TaskStatus, TaskPriority, UserRole
 
 
 class Task(Base):
