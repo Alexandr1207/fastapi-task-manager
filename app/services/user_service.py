@@ -17,6 +17,11 @@ def get_user_by_username(db: Session, username: str) -> User | None:
     return db.scalars(stmt).first()
 
 
+def get_user_by_id(db: Session, user_id: int) -> User | None:
+    stmt = select(User).where(User.id == user_id)
+    return db.scalars(stmt).first()
+
+
 def create_user(db: Session, user: UserCreate) -> User:
     hashed_password = hash_password(user.password)
     new_user = User(
