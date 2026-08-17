@@ -2,8 +2,8 @@ from fastapi import Depends
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import Session
 
-from database.models import Task
-from schemas.tasks import TaskCreate, TaskUpdate
+from app.database.models import Task
+from app.schemas.tasks import TaskCreate, TaskUpdate
 
 
 

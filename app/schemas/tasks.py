@@ -1,7 +1,7 @@
 import datetime
 import uuid
 from pydantic import BaseModel, Field
-from core.enums import TaskPriority, TaskStatus
+from app.core.enums import TaskPriority, TaskStatus
 
 
 class CategoryCreate(BaseModel):

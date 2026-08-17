@@ -1,8 +1,8 @@
 from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
-from database.models import Category
-from schemas.tasks import CategoryCreate
+from app.database.models import Category
+from app.schemas.tasks import CategoryCreate
 
 
 def get_categories_db(db: Session) -> list[Category] | None:

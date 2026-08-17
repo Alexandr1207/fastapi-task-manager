@@ -6,13 +6,13 @@ from typing import Annotated
 
 from sqlalchemy.orm import Session
 
-from core.enums import UserRole
-from database.models import User
-from routers.auth import get_current_user
-from services.category_service import get_category_by_id_db
-from schemas.tasks import TaskResponse, TaskStatus, TaskCreate, TaskPriority, TaskCreatedResponse, TaskUpdate
-from services.task_service import add_task, read_tasks, read_task_by_id, update_task_db, delete_task_db, get_all
-from database.database import get_db
+from app.core.enums import UserRole
+from app.database.models import User
+from app.routers.auth import get_current_user
+from app.services.category_service import get_category_by_id_db
+from app.schemas.tasks import TaskResponse, TaskStatus, TaskCreate, TaskPriority, TaskCreatedResponse, TaskUpdate
+from app.services.task_service import add_task, read_tasks, read_task_by_id, update_task_db, delete_task_db, get_all
+from app.database.database import get_db
 
 
 router = APIRouter(prefix='/tasks', tags=['Tasks'])

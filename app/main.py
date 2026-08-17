@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from database.database import Base, engine
-import database.models
+from app.database.database import Base, engine
+import app.database.models
 
-from routers.tasks import router as task_router
-from routers.categories import router as category_router
-from routers.users import router as user_router
-from routers.auth import router as auth_router
+from app.routers.tasks import router as task_router
+from app.routers.categories import router as category_router
+from app.routers.users import router as user_router
+from app.routers.auth import router as auth_router
 
 app = FastAPI()
 

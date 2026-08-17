@@ -4,9 +4,9 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Path, status
 
 from sqlalchemy.orm import Session
 
-from database.database import get_db
-from services.category_service import get_categories_db, create_category_db, delete_category_db, get_category_by_id_db, update_category_db, get_category_by_name_db
-from schemas.tasks import CategoryCreate, CategoryResponse
+from app.database.database import get_db
+from app.services.category_service import get_categories_db, create_category_db, delete_category_db, get_category_by_id_db, update_category_db, get_category_by_name_db
+from app.schemas.tasks import CategoryCreate, CategoryResponse
 
 
 

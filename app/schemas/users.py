@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, EmailStr
 
-from core.enums import UserRole
+from app.core.enums import UserRole
 
 
 class UserResponse(BaseModel):
@@ -35,4 +35,4 @@ class LoginRequest(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
-    toekn_type: str = "bearer"
+    token_type: str = "bearer"
