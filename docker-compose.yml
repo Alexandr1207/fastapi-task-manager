@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:17
+    container_name: task_manager_db
+    environment:
+      POSTGRES_DB: TaskManagerDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: task_manager_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:12345@db:5432/TaskManagerDB
+
+volumes:
+  postgres_data:
