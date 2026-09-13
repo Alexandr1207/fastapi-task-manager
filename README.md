@@ -42,21 +42,20 @@ Database (SQLAlchemy-модели, запросы к БД)
 
 ## Скриншоты
 
-> Task endpoints
-> ![img.png](screenshots/img.png)
-> Categories endpoints
-> ![img_1.png](screenshots/img_1.png)
-> User and auth endpoints
-> ![img_2.png](screenshots/img_2.png)
-> Successfull authorization
-> ![img_3.png](screenshots/img_3.png)
-> 
-> Get title endpoint result
-> ![img_4.png](screenshots/img_4.png)
-> User role error
-> ![img_5.png](screenshots/img_5.png)
-> ER-diagram
-> ![img_6.png](screenshots/img_6.png)
+Task endpoints
+![img.png](screenshots/img.png)
+Categories endpoints
+![img_1.png](screenshots/img_1.png)
+User and auth endpoints
+![img_2.png](screenshots/img_2.png)
+Successfull authorization
+![img_3.png](screenshots/img_3.png) 
+Get title endpoint result
+![img_4.png](screenshots/img_4.png)
+User role error
+![img_5.png](screenshots/img_5.png)
+ER-diagram
+![img_6.png](screenshots/img_6.png)
 
 ## Быстрый старт
 
