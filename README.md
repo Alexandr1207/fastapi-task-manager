@@ -1,218 +1,126 @@
-# Task Manager API
+# FastAPI Task Manager
+
+REST API для управления задачами с аутентификацией пользователей, категориями и разграничением доступа. Сделан как pet-проект для отработки слоистой архитектуры (Router → Service → DB) в FastAPI.
+
+![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+
+## Возможности
+
+- Регистрация и аутентификация пользователей через JWT
+- Хэширование паролей (Argon2)
+- CRUD для задач (tasks) с приоритетом, статусом и дедлайном
+- Категории задач с уникальными именами
+- Разграничение доступа: пользователь видит и редактирует только свои задачи
+- Валидация данных на уровне Pydantic-схем
+- Миграции схемы БД через Alembic
+
+## Стек
+
+- **FastAPI** — веб-фреймворк
+- **SQLAlchemy** — ORM
+- **PostgreSQL** — база данных
+- **Alembic** — миграции
+- **Pytest** — тесты
+- **Docker / Docker Compose** — контейнеризация
+
+## Архитектура
+
+Проект построен по слоистому принципу:
+
+```
+Router (обработка HTTP-запросов, валидация входных данных)
+   ↓
+Service (бизнes-логика)
+   ↓
+Database (SQLAlchemy-модели, запросы к БД)
+```
+
+Это разделение сделано осознанно: роутер не знает деталей работы с БД, сервисный слой не зависит от FastAPI — такую структуру проще тестировать и расширять.
+
+## Скриншоты
+
+> Task endpoints
+> ![img.png](screenshots/img.png)
+> Categories endpoints
+> ![img_1.png](screenshots/img_1.png)
+> User and auth endpoints
+> ![img_2.png](screenshots/img_2.png)
+> Successfull authorization
+> ![img_3.png](screenshots/img_3.png)
+> 
+> Get title endpoint result
+> ![img_4.png](screenshots/img_4.png)
+> User role error
+> ![img_5.png](screenshots/img_5.png)
+> ER-diagram
+> ![img_6.png](screenshots/img_6.png)
+
+## Быстрый старт
+
+Проект поднимается одной командой через Docker Compose — не нужно вручную ставить PostgreSQL или настраивать окружение.
+
+```bash
+git clone https://github.com/Alexandr1207/fastapi-task-manager.git
+cd fastapi-task-manager
+
+cp .env.example .env
+# при необходимости поправь значения в .env
+
+docker-compose up --build
+```
+
+После запуска:
+- API доступно на `http://localhost:8000`
+- Интерактивная документация (Swagger UI) — `http://localhost:8000/docs`
+
+Миграции применяются автоматически при старте контейнера. Если нужно прогнать их вручную:
+
+```bash
+docker-compose exec app alembic upgrade head
+```
+
+## Примеры запросов
+
+**Регистрация пользователя**
+```bash
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username": "testuser", "email": "test@example.com", "password": "SecurePass123"}'
+```
+
+**Логин и получение токена**
+```bash
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "SecurePass123"}'
+```
+
+**Создание задачи (нужен Bearer-токен)**
+```bash
+curl -X POST http://localhost:8000/tasks \
+  -H "Authorization: Bearer <твой_токен>" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Первая задача", "priority": "high", "deadline": "2026-12-31"}'
+```
 
-REST API for managing tasks, categories, and users.
+## Тесты
 
-This project was built as a backend pet project to practice developing a FastAPI application with authentication, PostgreSQL, database migrations, automated testing, and Docker.
+```bash
+docker-compose exec app pytest
+```
 
-## Features
+Покрыты: регистрация/логин, обработка невалидных данных, доступ к чужим/несуществующим ресурсам.
 
-- User registration and authentication
-- JWT-based authentication
-- Password hashing with Argon2
-- Role-based access control
-- CRUD operations for tasks
-- Task ownership
-- Task categories
-- PostgreSQL database
-- Database migrations with Alembic
-- Request and response validation with Pydantic
-- Automated API tests with Pytest
-- Docker and Docker Compose support
+## Возможные улучшения
 
-## Tech Stack
+- [ ] Пагинация для списка задач
+- [ ] Фильтрация задач по статусу/приоритету/категории
+- [ ] Rate limiting на auth-эндпоинтах
+- [ ] Логирование в структурированном формате
 
-- Python 3.14
-- FastAPI
-- SQLAlchemy 2.0
-- PostgreSQL 17
-- Pydantic 2
-- Alembic
-- PyJWT
-- pwdlib / Argon2
-- Pytest
-- Docker
-- Docker Compose
-- Git
+## Автор
 
-## Architecture
-
-The application follows a layered structure:
-
-Router
-↓
-Service
-↓
-Database / SQLAlchemy
-↓
-PostgreSQL
-
-FastAPI dependency injection is used for database sessions and authentication.
-
-## Authentication
-
-The API uses JWT access tokens for authentication.
-
-Authentication flow:
-
-Register
-↓
-Password hashing
-↓
-PostgreSQL
-↓
-Login
-↓
-JWT access token
-↓
-Authenticated requests
-
-Protected endpoints require a valid Bearer token:
-
-Authorization: Bearer <access_token>
-
-The application also supports role-based access control for protected operations.
-
-## Database
-
-The project uses PostgreSQL with SQLAlchemy 2.0.
-
-Main entities:
-
-- User
-- Task
-- Category
-
-Database schema changes are managed using Alembic.
-
-Create a migration:
-
-alembic revision --autogenerate -m "migration message"
-
-Apply migrations:
-
-alembic upgrade head
-
-Check the current migration:
-
-alembic current
-
-## Testing
-
-The project includes API tests written with Pytest.
-
-Run the test suite:
-
-pytest
-
-The tests cover:
-
-- User registration
-- User login
-- JWT authentication
-- Unauthorized requests
-- Invalid input
-- Task creation
-- Task retrieval
-- Task ownership
-- Non-existent resources
-
-## Docker
-
-The project includes Docker configuration for running the FastAPI application together with PostgreSQL.
-
-Build and start the containers:
-
-docker compose up --build
-
-The API will be available at:
-
-http://localhost:8000
-
-Interactive API documentation:
-
-http://localhost:8000/docs
-
-Stop the containers:
-
-docker compose down
-
-PostgreSQL data is stored in a Docker named volume and persists between container restarts.
-
-Inside Docker Compose, the application connects to PostgreSQL through the `db` service:
-
-postgresql+psycopg2://postgres:password@db:5432/TaskManagerDB
-
-## Environment Variables
-
-Create a `.env` file with the required environment variables.
-
-Example:
-
-DATABASE_URL=postgresql+psycopg2://postgres:password@localhost:5432/TaskManagerDB
-SECRET_KEY=your-secret-key
-
-Do not commit real credentials or secret keys to the repository.
-
-## Project Structure
-
-app/
-├── core/
-│   ├── enums.py
-│   └── security.py
-│
-├── database/
-│   ├── database.py
-│   └── models.py
-│
-├── routers/
-│   ├── auth.py
-│   ├── categories.py
-│   ├── tasks.py
-│   └── users.py
-│
-├── schemas/
-│   ├── auth.py
-│   ├── categories.py
-│   ├── tasks.py
-│   └── users.py
-│
-├── services/
-│   ├── task_service.py
-│   ├── user_service.py
-│   └── ...
-│
-└── main.py
-
-tests/
-├── test_auth.py
-└── test_tasks.py
-
-Dockerfile
-docker-compose.yml
-requirements.txt
-alembic.ini
-
-## API Documentation
-
-FastAPI automatically generates interactive API documentation.
-
-After starting the application, open:
-
-http://localhost:8000/docs
-
-The Swagger UI can be used to explore and test the API endpoints.
-
-## Project Goals
-
-The main goal of the project was to gain practical experience with:
-
-- REST API development
-- FastAPI
-- Backend application architecture
-- Authentication and authorization
-- PostgreSQL and relational databases
-- SQLAlchemy ORM
-- Database migrations
-- Automated testing
-- Docker and Docker Compose
-- Git and GitHub
+Alexandr — [GitHub](https://github.com/Alexandr1207)
